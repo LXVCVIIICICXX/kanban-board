@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title id="page-title">Kanban Board</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+  <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
+  <div class="topbar">
+    <div class="topbar-logo" id="project-logo-title">Kanban Board</div>
+    <div class="topbar-right">
+      <div class="game-control" style="display: none;">
+        <span class="game-status-indicator" id="game-status-dot"></span>
+        <span class="game-status-text" id="game-status-text">Определяем статус...</span>
+        <button type="button" id="game-control-btn" class="btn" style="margin-left: 10px;">Запустить сервер</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ОСНОВНОЙ КОНТЕНТ -->
+  <div class="tasks-page" id="tab-tasks">
+    <div class="tasks-toolbar">
+      <button type="button" id="task-create-btn" class="btn btn-new" title="Создать задачу">+ Задача</button>
+    </div>
+    <div class="tasks-board" id="tasks-board">
+      <!-- Колонки будут созданы динамически в tasks.js на основе конфигурации -->
+    </div>
+  </div>
+
+  <!-- МОДАЛКА ПРОСМОТРА ЗАДАЧИ -->
+  <div id="task-view-modal" class="modal-overlay">
+    <div class="modal">
+      <div class="task-modal-head">
+        <div class="modal-title" id="task-view-title">Просмотр задачи</div>
+        <div class="task-modal-head-right">
+          <span class="task-id-text" id="task-view-id"></span>
+          <button type="button" id="task-view-copy" class="task-copy-btn" title="Копировать ID задачи">⧉</button>
+        </div>
+      </div>
+      <div class="task-view-body" id="task-view-body"></div>
+      <div class="modal-actions">
+        <button type="button" id="task-view-close" class="btn btn-cancel">Закрыть</button>
+        <button type="button" id="task-view-edit" class="btn btn-edit">Редактировать</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- МОДАЛКА СОЗДАНИЯ ЗАДАЧИ -->
+  <div id="task-create-modal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-title">Новая задача</div>
+      <div class="form-row">
+        <label for="task-create-title">Название</label>
+        <input type="text" id="task-create-title" class="field" placeholder="Название задачи">
+      </div>
+      <div class="form-row-group" style="display: flex; gap: 12px; margin-bottom: 12px;">
+        <div class="form-row" style="flex: 1; margin-bottom: 0;">
+          <label for="task-create-assignee">Исполнитель</label>
+          <select id="task-create-assignee" class="field" style="width: 100%;">
+            <!-- Будет заполнено динамически на основе настроек -->
+          </select>
+        </div>
+        <div class="form-row" style="flex: 1; margin-bottom: 0;">
+          <label for="task-create-dependencies">Зависит от (ID через запятую)</label>
+          <input type="text" id="task-create-dependencies" class="field" placeholder="например: a1b2c3d4" style="width: 100%;">
+        </div>
+      </div>
+      <div class="form-row">
+        <label for="task-create-goal">Описание</label>
+        <textarea id="task-create-goal" class="field" rows="3" placeholder="Зачем это делается, что должно получиться в итоге"></textarea>
+      </div>
+      <div class="form-row">
+        <label for="task-create-subtasks">Подзадачи (по одной на строку)</label>
+        <textarea id="task-create-subtasks" class="field" rows="4" placeholder="Подзадача 1&#10;Подзадача 2"></textarea>
+      </div>
+      <div class="form-row">
+        <label>Вложения</label>
+        <div id="task-create-dropzone" class="task-dropzone">Перетащите файлы или нажмите для выбора</div>
+        <input type="file" id="task-create-file-input" multiple style="display:none">
+        <div id="task-create-attachments" class="task-attachments"></div>
+      </div>
+      <div id="task-create-error" class="task-create-error" style="display:none"></div>
+      <div class="modal-actions">
+        <button type="button" id="task-create-cancel" class="btn btn-cancel">Отмена</button>
+        <button type="button" id="task-create-save" class="btn btn-save">Создать</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- МОДАЛКА РЕДАКТИРОВАНИЯ ЗАДАЧИ -->
+  <div id="task-edit-modal" class="modal-overlay">
+    <div class="modal">
+      <div class="task-modal-head">
+        <div class="modal-title">Редактирование задачи</div>
+        <div class="task-modal-head-right">
+          <span class="task-id-text" id="task-edit-id"></span>
+          <button type="button" id="task-edit-copy" class="task-copy-btn" title="Копировать ID задачи">⧉</button>
+        </div>
+      </div>
+      <div class="form-row">
+        <label for="task-edit-title">Название</label>
+        <input type="text" id="task-edit-title" class="field" placeholder="Название задачи">
+      </div>
+      <div class="form-row-group" style="display: flex; gap: 12px; margin-bottom: 12px;">
+        <div class="form-row" style="flex: 1; margin-bottom: 0;">
+          <label for="task-edit-assignee">Исполнитель</label>
+          <select id="task-edit-assignee" class="field" style="width: 100%;">
+            <!-- Будет заполнено динамически на основе настроек -->
+          </select>
+        </div>
+        <div class="form-row" style="flex: 1; margin-bottom: 0;">
+          <label for="task-edit-dependencies">Зависит от (ID через запятую)</label>
+          <input type="text" id="task-edit-dependencies" class="field" placeholder="например: a1b2c3d4" style="width: 100%;">
+        </div>
+      </div>
+      <div class="form-row">
+        <label for="task-edit-goal">Описание</label>
+        <textarea id="task-edit-goal" class="field" rows="3"></textarea>
+      </div>
+      <div class="form-row">
+        <label for="task-edit-subtasks">Подзадачи (по одной на строку)</label>
+        <textarea id="task-edit-subtasks" class="field" rows="4"></textarea>
+      </div>
+      <div class="form-row">
+        <label>Вложения</label>
+        <div id="task-edit-dropzone" class="task-dropzone">Перетащите файлы или нажмите для выбора</div>
+        <input type="file" id="task-edit-file-input" multiple style="display:none">
+        <div id="task-edit-attachments" class="task-attachments"></div>
+      </div>
+      <div id="task-edit-error" class="task-create-error" style="display:none"></div>
+      <div class="modal-actions">
+        <button type="button" id="task-edit-cancel" class="btn btn-cancel">Отмена</button>
+        <button type="button" id="task-edit-save" class="btn btn-save">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- МОДАЛКА ПРЕДПРОСМОТРА ИЗОБРАЖЕНИЙ -->
+  <div id="image-preview-modal" class="modal-overlay">
+    <div class="modal" style="width: auto; max-width: 90vw; padding: 12px; display: flex; flex-direction: column; align-items: center;">
+      <img id="image-preview-img" style="max-height: 80vh; max-width: 100%; object-fit: contain; cursor: zoom-out;">
+      <div class="modal-actions" style="margin-top: 10px; width: 100%; display: flex; justify-content: center;">
+        <button type="button" id="image-preview-close" class="btn btn-cancel">Закрыть</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- МОДАЛКА ПОДТВЕРЖДЕНИЯ (КАСТОМНЫЙ CONFIRM) -->
+  <div id="confirm-modal" class="modal-overlay">
+    <div class="modal" style="width: 360px;">
+      <div class="modal-title">Подтверждение</div>
+      <div id="confirm-modal-text" style="font-size: 14px; margin-bottom: 20px;">Вы уверены?</div>
+      <div class="modal-actions">
+        <button type="button" id="confirm-modal-cancel" class="btn btn-cancel">Отмена</button>
+        <button type="button" id="confirm-modal-ok" class="btn btn-save">Да</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- БИБЛИОТЕКИ ЧЕРЕЗ CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+  
+  <!-- КОД ПРИЛОЖЕНИЯ -->
+  <script src="/app.js"></script>
+  <script src="/tasks.js"></script>
+
+</body>
+</html>
