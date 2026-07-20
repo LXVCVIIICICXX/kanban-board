@@ -10,7 +10,7 @@ module.exports = {
   PROJECT_NAME: 'My Project',
 
   // Порт, на котором запускается Kanban-трекер
-  TRACKER_PORT: 5000,
+  TRACKER_PORT: 5005,
 
   // Колонки канбан-доски (порядок отображения)
   TASK_FOLDERS: ['Backlog', 'To do', 'Done'],
