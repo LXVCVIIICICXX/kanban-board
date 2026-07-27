@@ -345,6 +345,13 @@
 
   function closeImagePreview() {
     if (imagePreviewModal) imagePreviewModal.classList.remove('open');
+    imagePreviewImg.src = '';
+    const video = document.getElementById('image-preview-video');
+    if (video) {
+      video.pause();
+      video.removeAttribute('src');
+      video.load();
+    }
   }
 
   document.addEventListener('click', (e) => {

@@ -438,6 +438,7 @@
     if (!modal.classList.contains('open')) return;
     if (canvas.classList.contains('open')) return;
     if (isTypingTarget()) return;
+    if (video && video.style.display !== 'none') return;
     if (e.key === 'ArrowLeft') { e.preventDefault(); stepPreview(-1); }
     else if (e.key === 'ArrowRight') { e.preventDefault(); stepPreview(1); }
   });

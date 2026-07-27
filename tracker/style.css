@@ -678,6 +678,12 @@ textarea.field {
   object-fit: contain;
 }
 
+.image-preview-canvas-wrap video {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+}
+
 #image-annotator-canvas {
   display: none;
   position: absolute;
