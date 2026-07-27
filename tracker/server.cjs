@@ -359,8 +359,8 @@ function isAppPortActive() {
   });
 }
 
-// Роутинг статических файлов трекера
-function serveStaticFile(res, filePath) {
+// Роутинг статических файлов трекера с поддержкой HTTP Range (для перемотки видео)
+function serveStaticFile(req, res, filePath) {
   const ext = path.extname(filePath).toLowerCase();
   const mimeTypes = {
     '.html': 'text/html; charset=utf-8',
@@ -371,16 +371,60 @@ function serveStaticFile(res, filePath) {
     '.jpeg': 'image/jpeg',
     '.gif': 'image/gif',
     '.webp': 'image/webp',
-    '.svg': 'image/svg+xml'
+    '.svg': 'image/svg+xml',
+    '.mp4': 'video/mp4',
+    '.mov': 'video/quicktime',
+    '.webm': 'video/webm',
+    '.ogg': 'video/ogg',
+    '.mkv': 'video/x-matroska',
+    '.avi': 'video/x-msvideo',
+    '.m4v': 'video/x-m4v',
+    '.mp3': 'audio/mpeg',
+    '.wav': 'audio/wav',
   };
   const contentType = mimeTypes[ext] || 'application/octet-stream';
-  fs.readFile(filePath, (err, data) => {
-    if (err) {
+
+  fs.stat(filePath, (err, stats) => {
+    if (err || !stats.isFile()) {
       res.writeHead(404);
       return res.end('File not found');
     }
-    res.writeHead(200, { 'Content-Type': contentType });
-    res.end(data);
+
+    const fileSize = stats.size;
+    const range = req.headers.range;
+
+    if (range) {
+      const parts = range.replace(/bytes=/, '').split('-');
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+
+      if (start >= fileSize || end >= fileSize) {
+        res.writeHead(416, {
+          'Content-Range': `bytes */${fileSize}`,
+          'Access-Control-Allow-Origin': '*'
+        });
+        return res.end();
+      }
+
+      const chunksize = (end - start) + 1;
+      const fileStream = fs.createReadStream(filePath, { start, end });
+      res.writeHead(206, {
+        'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+        'Accept-Ranges': 'bytes',
+        'Content-Length': chunksize,
+        'Content-Type': contentType,
+        'Access-Control-Allow-Origin': '*'
+      });
+      fileStream.pipe(res);
+    } else {
+      res.writeHead(200, {
+        'Content-Length': fileSize,
+        'Content-Type': contentType,
+        'Accept-Ranges': 'bytes',
+        'Access-Control-Allow-Origin': '*'
+      });
+      fs.createReadStream(filePath).pipe(res);
+    }
   });
 }
 
@@ -473,13 +517,13 @@ async function requestHandler(req, res) {
     const fileMatch = p.match(/^\/tasks-files\/(.+)$/);
     if (fileMatch) {
       const name = path.basename(decodeURIComponent(fileMatch[1]));
-      return serveStaticFile(res, path.join(TASKS_FILES_DIR, name));
+      return serveStaticFile(req, res, path.join(TASKS_FILES_DIR, name));
     }
 
     // Статические файлы трекера
     let fileToServe = path.join(__dirname, p === '/' ? 'index.html' : p);
     if (fs.existsSync(fileToServe) && fs.statSync(fileToServe).isFile()) {
-      return serveStaticFile(res, fileToServe);
+      return serveStaticFile(req, res, fileToServe);
     }
 
     res.writeHead(404);
@@ -542,6 +586,33 @@ async function requestHandler(req, res) {
       }
       return jsonResp(res, 200, saved);
     }
+
+    // Сохранение аннотаций медиа (рисование на скрине)
+    if (p === '/api/annotate') {
+      const buf = await readBody(req);
+      let data;
+      try {
+        data = JSON.parse(buf.toString('utf8'));
+      } catch (e) {
+        return jsonResp(res, 400, { error: 'Invalid JSON' });
+      }
+      const ROUTE_DIRS = {
+        '/tasks-files/': TASKS_FILES_DIR,
+      };
+      const route = String((data && data.route) || '');
+      const targetDir = ROUTE_DIRS[route];
+      if (!targetDir) return jsonResp(res, 400, { error: 'Unknown route' });
+      const name = path.basename(String((data && data.savedName) || ''));
+      if (!name) return jsonResp(res, 400, { error: 'Invalid savedName' });
+      const target = path.join(targetDir, name);
+      if (!fs.existsSync(target)) return jsonResp(res, 404, { error: 'Original file not found' });
+      const m = /^data:image\/png;base64,(.+)$/.exec(String((data && data.dataURL) || ''));
+      if (!m) return jsonResp(res, 400, { error: 'Invalid dataURL (expected PNG)' });
+      const pngBuf = Buffer.from(m[1], 'base64');
+      fs.writeFileSync(target, pngBuf);
+      return jsonResp(res, 200, { ok: true });
+    }
+
 
     // Запуск внешнего приложения
     if (p === '/api/game/start') {
