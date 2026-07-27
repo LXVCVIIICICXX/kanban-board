@@ -543,6 +543,33 @@ async function requestHandler(req, res) {
       return jsonResp(res, 200, saved);
     }
 
+    // Сохранение аннотаций медиа (рисование на скрине)
+    if (p === '/api/annotate') {
+      const buf = await readBody(req);
+      let data;
+      try {
+        data = JSON.parse(buf.toString('utf8'));
+      } catch (e) {
+        return jsonResp(res, 400, { error: 'Invalid JSON' });
+      }
+      const ROUTE_DIRS = {
+        '/tasks-files/': TASKS_FILES_DIR,
+      };
+      const route = String((data && data.route) || '');
+      const targetDir = ROUTE_DIRS[route];
+      if (!targetDir) return jsonResp(res, 400, { error: 'Unknown route' });
+      const name = path.basename(String((data && data.savedName) || ''));
+      if (!name) return jsonResp(res, 400, { error: 'Invalid savedName' });
+      const target = path.join(targetDir, name);
+      if (!fs.existsSync(target)) return jsonResp(res, 404, { error: 'Original file not found' });
+      const m = /^data:image\/png;base64,(.+)$/.exec(String((data && data.dataURL) || ''));
+      if (!m) return jsonResp(res, 400, { error: 'Invalid dataURL (expected PNG)' });
+      const pngBuf = Buffer.from(m[1], 'base64');
+      fs.writeFileSync(target, pngBuf);
+      return jsonResp(res, 200, { ok: true });
+    }
+
+
     // Запуск внешнего приложения
     if (p === '/api/game/start') {
       if (!config.APP_START_CMD) {

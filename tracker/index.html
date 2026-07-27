@@ -137,12 +137,41 @@
     </div>
   </div>
 
-  <!-- МОДАЛКА ПРЕДПРОСМОТРА ИЗОБРАЖЕНИЙ -->
+  <!-- МОДАЛКА ПРЕДПРОСМОТРА ИЗОБРАЖЕНИЙ И ВИДЕО -->
   <div id="image-preview-modal" class="modal-overlay">
-    <div class="modal" style="width: auto; max-width: 90vw; padding: 12px; display: flex; flex-direction: column; align-items: center;">
-      <img id="image-preview-img" style="max-height: 80vh; max-width: 100%; object-fit: contain; cursor: zoom-out;">
-      <div class="modal-actions" style="margin-top: 10px; width: 100%; display: flex; justify-content: center;">
-        <button type="button" id="image-preview-close" class="btn btn-cancel">Закрыть</button>
+    <div class="modal modal-image-preview">
+      <div id="image-annotator-toolbar" class="image-annotator-toolbar">
+        <div class="image-annotator-tools">
+          <button type="button" class="image-annotator-tool" data-tool="brush" data-tooltip="Кисть (L)">&#9998;</button>
+          <button type="button" class="image-annotator-tool" data-tool="arrow" data-tooltip="Стрелка (A)">&#8599;</button>
+          <button type="button" class="image-annotator-tool" data-tool="rect" data-tooltip="Прямоугольник (S)">&#9645;</button>
+          <button type="button" class="image-annotator-tool" data-tool="text" data-tooltip="Текст (T)">T</button>
+          <button type="button" class="image-annotator-tool image-annotator-tool-eraser" data-tool="eraser" data-tooltip="Ластик (E)" aria-label="Ластик"></button>
+        </div>
+        <label class="image-annotator-field" title="Цвет">
+          <span>Цвет</span>
+          <input type="color" id="image-annotator-color" value="#ff3b30">
+        </label>
+        <label class="image-annotator-field" title="Толщина линии">
+          <span>Толщина</span>
+          <input type="range" id="image-annotator-width" min="1" max="24" value="3">
+        </label>
+        <label class="image-annotator-field" id="image-annotator-fontsize-wrap" title="Размер шрифта (текст)">
+          <span>Шрифт</span>
+          <input type="number" id="image-annotator-fontsize" min="8" max="96" value="30">
+        </label>
+        <button type="button" id="image-annotator-undo" class="btn-table" data-tooltip="Отменить последнее действие">&#8630; Undo</button>
+        <button type="button" id="image-annotator-reset" class="btn-table btn-remove" data-tooltip="Сбросить все несохранённые аннотации">&#8635; Сброс</button>
+        <div class="image-annotator-spacer"></div>
+        <button type="button" id="image-annotator-cancel" class="btn btn-cancel" data-tooltip="Выйти без сохранения">Отмена</button>
+        <button type="button" id="image-annotator-save" class="btn btn-save" data-tooltip="Сохранить изменения">Сохранить</button>
+      </div>
+      <div id="image-preview-canvas-wrap" class="image-preview-canvas-wrap">
+        <button type="button" id="image-preview-draw" class="modal-image-preview-draw" title="Рисовать на скрине" aria-label="Рисовать">&#9998;</button>
+        <button type="button" id="image-preview-copy" class="modal-image-preview-copy" title="Копировать изображение" aria-label="Копировать изображение"></button>
+        <img id="image-preview-img" src="" alt="">
+        <video id="image-preview-video" controls playsinline style="display:none"></video>
+        <canvas id="image-annotator-canvas"></canvas>
       </div>
     </div>
   </div>
@@ -165,6 +194,7 @@
   
   <!-- КОД ПРИЛОЖЕНИЯ -->
   <script src="/app.js"></script>
+  <script src="/image-annotator.js"></script>
   <script src="/tasks.js"></script>
 
 </body>
