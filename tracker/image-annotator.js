@@ -45,7 +45,22 @@
     return null;
   }
 
+  function fitImageToScreen() {
+    if (!img || !img.naturalWidth || !img.naturalHeight) return;
+    const isAnnotatorOpen = modalBox && modalBox.classList.contains('annotator-open');
+    const maxW = Math.max(200, window.innerWidth - 48);
+    const maxH = Math.max(200, window.innerHeight - (isAnnotatorOpen ? 120 : 48));
+
+    const scale = Math.min(maxW / img.naturalWidth, maxH / img.naturalHeight);
+    const dispW = Math.round(img.naturalWidth * scale);
+    const dispH = Math.round(img.naturalHeight * scale);
+
+    img.style.width = dispW + 'px';
+    img.style.height = dispH + 'px';
+  }
+
   function setupCanvasSize() {
+    fitImageToScreen();
     canvas.width = img.naturalWidth;
     canvas.height = img.naturalHeight;
     canvas.style.width = img.clientWidth + 'px';
@@ -217,7 +232,11 @@
   }
   toolButtons.forEach(btn => btn.addEventListener('click', () => setTool(btn.dataset.tool)));
 
+  img.addEventListener('mousedown', (e) => e.preventDefault());
+  img.addEventListener('dragstart', (e) => e.preventDefault());
+
   canvas.addEventListener('mousedown', (e) => {
+    e.preventDefault();
     const pos = getPos(e);
     if (currentTool === 'eraser') {
       pointerDown = true;
@@ -286,10 +305,10 @@
     const start = () => {
       ops = [];
       currentOp = null;
+      if (modalBox) modalBox.classList.add('annotator-open');
       setupCanvasSize();
       canvas.classList.add('open');
       toolbar.classList.add('open');
-      if (modalBox) modalBox.classList.add('annotator-open');
       drawBtn.classList.add('active');
       setTool('brush');
       redraw();
@@ -308,6 +327,7 @@
     if (modalBox) modalBox.classList.remove('annotator-open');
     drawBtn.classList.remove('active');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    fitImageToScreen();
   }
 
   drawBtn.addEventListener('click', enterDrawMode);
@@ -394,6 +414,7 @@
   }, true);
 
   window.addEventListener('resize', () => {
+    fitImageToScreen();
     if (canvas.classList.contains('open')) setupCanvasSize();
   });
 
@@ -415,8 +436,19 @@
       video.style.display = isVideo ? '' : 'none';
     }
     img.style.display = isVideo ? 'none' : '';
-    img.src = isVideo ? '' : p.src;
-    img.alt = isVideo ? '' : (p.alt || '');
+    if (!isVideo) {
+      const updateSize = () => {
+        fitImageToScreen();
+        if (canvas.classList.contains('open')) setupCanvasSize();
+      };
+      img.onload = updateSize;
+      img.src = p.src;
+      img.alt = p.alt || '';
+      if (img.complete && img.naturalWidth) updateSize();
+    } else {
+      img.src = '';
+      img.alt = '';
+    }
     drawBtn.style.display = isVideo ? 'none' : '';
     if (copyBtn) copyBtn.style.display = isVideo ? 'none' : '';
   }

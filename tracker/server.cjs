@@ -615,7 +615,7 @@ async function requestHandler(req, res) {
 
 
     // Запуск внешнего приложения
-    if (p === '/api/game/start') {
+    if (p === '/api/project/start') {
       if (!config.APP_START_CMD) {
         return jsonResp(res, 400, { error: 'App start command not configured' });
       }
@@ -740,6 +740,26 @@ async function requestHandler(req, res) {
       const targetPath = path.join(targetDir, slug + '.md');
       if (found.folder !== targetFolder) fs.renameSync(found.full, targetPath);
       return jsonResp(res, 200, { slug, folder: targetFolder });
+    }
+
+    res.writeHead(404);
+    return res.end('Not found');
+  }
+
+  // ===== DELETE =====
+  if (method === 'DELETE') {
+    // Удаление задачи
+    const taskDeleteMatch = p.match(/^\/api\/tasks\/([^/]+)$/);
+    if (taskDeleteMatch) {
+      const slug = decodeURIComponent(taskDeleteMatch[1]);
+      const found = findTaskBySlug(slug);
+      if (!found) return jsonResp(res, 404, { error: 'Not found' });
+      try {
+        fs.unlinkSync(found.full);
+        return jsonResp(res, 200, { ok: true, slug });
+      } catch (e) {
+        return jsonResp(res, 500, { error: 'Failed to delete task file: ' + e.message });
+      }
     }
 
     res.writeHead(404);

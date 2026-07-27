@@ -392,6 +392,7 @@
   const viewBody = document.getElementById('task-view-body');
   const viewClose = document.getElementById('task-view-close');
   const viewEditBtn = document.getElementById('task-view-edit');
+  const viewDeleteBtn = document.getElementById('task-view-delete');
 
   window.Amogus.jumpToTask = function(id) {
     const task = tasks.find(t => t.id === id);
@@ -487,9 +488,29 @@
     viewModal.classList.remove('open');
   }
 
+  async function deleteTask() {
+    if (!currentTask || !currentTask.slug) return;
+    const ok = await window.Amogus.confirmModal(`Вы уверены, что хотите удалить задачу "${currentTask.title || currentTask.slug}"?`);
+    if (!ok) return;
+    try {
+      const res = await fetch('/api/tasks/' + encodeURIComponent(currentTask.slug), {
+        method: 'DELETE'
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Не удалось удалить задачу');
+      }
+      closeView();
+      await loadTasks();
+    } catch (e) {
+      alert('Ошибка при удалении: ' + e.message);
+    }
+  }
+
   if (viewClose) viewClose.addEventListener('click', closeView);
   if (viewCopy) viewCopy.addEventListener('click', () => { if (currentTask) copyToClipboard(copyValue(currentTask), viewCopy); });
   if (viewEditBtn) viewEditBtn.addEventListener('click', () => { if (currentTask) openEdit(currentTask); });
+  if (viewDeleteBtn) viewDeleteBtn.addEventListener('click', deleteTask);
   if (viewModal) {
     viewModal.addEventListener('click', (e) => { if (e.target === viewModal) closeView(); });
   }
@@ -787,7 +808,7 @@
     gameControlBtn.disabled = true;
     gameStatusText.textContent = 'Запуск...';
     try {
-      await fetch('/api/game/start', { method: 'POST' });
+      await fetch('/api/project/start', { method: 'POST' });
       setTimeout(checkGameStatus, 1000);
     } catch (e) {
       alert('Ошибка при старте: ' + e.message);

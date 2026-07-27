@@ -131,6 +131,17 @@ body {
   border-color: #2563eb;
 }
 
+.btn-delete {
+  background: #ef4444;
+  color: #fff;
+  border-color: #ef4444;
+}
+
+.btn-delete:hover {
+  background: #dc2626;
+  border-color: #dc2626;
+}
+
 /* === Панель инструментов === */
 .tasks-page {
   flex: 1;
@@ -642,6 +653,20 @@ textarea.field {
 }
 
 /* === Полноэкранный предпросмотр изображения-вложения и редактор аннотаций === */
+#image-preview-modal,
+.modal-image-preview,
+.image-preview-canvas-wrap,
+.image-preview-canvas-wrap img,
+.image-preview-canvas-wrap video,
+#image-annotator-canvas,
+.image-annotator-toolbar {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -webkit-user-drag: none;
+}
+
 .modal-image-preview {
   width: auto;
   max-width: calc(100vw - 48px);
@@ -667,14 +692,24 @@ textarea.field {
   align-items: center;
   justify-content: center;
   max-width: calc(100vw - 48px);
-  max-height: calc(100vh - 130px);
+  max-height: calc(100vh - 48px);
+  overflow: hidden;
+}
+
+.modal-image-preview.annotator-open .image-preview-canvas-wrap {
+  max-height: calc(100vh - 120px);
 }
 
 .image-preview-canvas-wrap img {
   display: block;
   max-width: calc(100vw - 48px);
-  max-height: calc(100vh - 130px);
+  max-height: calc(100vh - 48px);
   object-fit: contain;
+  pointer-events: auto;
+}
+
+.modal-image-preview.annotator-open .image-preview-canvas-wrap img {
+  max-height: calc(100vh - 120px);
 }
 
 .image-preview-canvas-wrap video {
@@ -683,7 +718,7 @@ textarea.field {
   z-index: 1;
   pointer-events: auto;
   max-width: calc(100vw - 48px);
-  max-height: calc(100vh - 130px);
+  max-height: calc(100vh - 48px);
   object-fit: contain;
   outline: none;
 }
