@@ -147,6 +147,9 @@
           <button type="button" class="image-annotator-tool" data-tool="rect" data-tooltip="Прямоугольник (S)">&#9645;</button>
           <button type="button" class="image-annotator-tool" data-tool="text" data-tooltip="Текст (T)">T</button>
           <button type="button" class="image-annotator-tool image-annotator-tool-eraser" data-tool="eraser" data-tooltip="Ластик (E)" aria-label="Ластик"></button>
+          <div class="image-annotator-divider"></div>
+          <button type="button" id="image-annotator-undo" class="image-annotator-tool" data-tooltip="Отменить последнее действие (Ctrl+Z)">&#8630;</button>
+          <button type="button" id="image-annotator-reset" class="image-annotator-tool image-annotator-tool-reset" data-tooltip="Сбросить все несохранённые аннотации">&#8635;</button>
         </div>
         <label class="image-annotator-field" title="Цвет">
           <span>Цвет</span>
@@ -160,8 +163,6 @@
           <span>Шрифт</span>
           <input type="number" id="image-annotator-fontsize" min="8" max="96" value="30">
         </label>
-        <button type="button" id="image-annotator-undo" class="btn-table" data-tooltip="Отменить последнее действие">&#8630; Undo</button>
-        <button type="button" id="image-annotator-reset" class="btn-table btn-remove" data-tooltip="Сбросить все несохранённые аннотации">&#8635; Сброс</button>
         <div class="image-annotator-spacer"></div>
         <button type="button" id="image-annotator-cancel" class="btn btn-cancel" data-tooltip="Выйти без сохранения">Отмена</button>
         <button type="button" id="image-annotator-save" class="btn btn-save" data-tooltip="Сохранить изменения">Сохранить</button>

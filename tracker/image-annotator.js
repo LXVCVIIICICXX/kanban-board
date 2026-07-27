@@ -11,7 +11,7 @@
   if (!modal || !img || !canvas || !toolbar || !drawBtn) return;
 
   const ctx = canvas.getContext('2d');
-  const toolButtons = Array.from(toolbar.querySelectorAll('.image-annotator-tool'));
+  const toolButtons = Array.from(toolbar.querySelectorAll('.image-annotator-tool[data-tool]'));
   const colorInput = document.getElementById('image-annotator-color');
   const widthInput = document.getElementById('image-annotator-width');
   const fontSizeInput = document.getElementById('image-annotator-fontsize');

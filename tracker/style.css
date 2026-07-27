@@ -670,8 +670,7 @@ textarea.field {
   max-height: calc(100vh - 130px);
 }
 
-.image-preview-canvas-wrap img,
-.image-preview-canvas-wrap video {
+.image-preview-canvas-wrap img {
   display: block;
   max-width: calc(100vw - 48px);
   max-height: calc(100vh - 130px);
@@ -679,9 +678,15 @@ textarea.field {
 }
 
 .image-preview-canvas-wrap video {
+  display: block;
   position: relative;
   z-index: 1;
   pointer-events: auto;
+  max-width: calc(100vw - 48px);
+  max-height: calc(100vh - 130px);
+  width: auto;
+  height: auto;
+  outline: none;
 }
 
 #image-annotator-canvas {
@@ -715,7 +720,15 @@ textarea.field {
 
 .image-annotator-tools {
   display: flex;
+  align-items: center;
   gap: 4px;
+}
+
+.image-annotator-divider {
+  width: 1px;
+  height: 24px;
+  background: #e2e8f0;
+  margin: 0 4px;
 }
 
 .image-annotator-tool {
@@ -758,6 +771,12 @@ textarea.field {
   background-position: center;
   background-size: 16px 16px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cg transform='rotate(45 8 8)'%3E%3Crect x='3' y='5.5' width='10' height='6' rx='1' fill='none' stroke='%23fff' stroke-width='1.2'/%3E%3Cline x1='3' y1='8.7' x2='13' y2='8.7' stroke='%23fff' stroke-width='1'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+.image-annotator-tool.image-annotator-tool-reset:hover {
+  background: #ef4444;
+  color: #fff;
+  border-color: #ef4444;
 }
 
 .image-annotator-field {
