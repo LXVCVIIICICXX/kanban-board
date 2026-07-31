@@ -380,7 +380,10 @@ body {
   padding: 24px;
   display: flex;
   flex-direction: column;
-  max-height: 90vh;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  position: relative;
+  box-sizing: border-box;
 }
 
 #task-create-modal .modal,
@@ -646,10 +649,18 @@ textarea.field {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
-  margin-top: 20px;
+  margin-top: 16px;
   flex-shrink: 0;
   border-top: 1px solid #f1f5f9;
   padding-top: 16px;
+  position: sticky;
+  bottom: -24px;
+  background: #fff;
+  z-index: 10;
+  margin-bottom: -24px;
+  padding-bottom: 24px;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
 }
 
 /* === Полноэкранный предпросмотр изображения-вложения и редактор аннотаций === */
